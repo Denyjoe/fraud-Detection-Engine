@@ -1,4 +1,4 @@
-# pamostore fraud check — Fraud Detection & Content Moderation Engine
+# pamostore fraud check  Fraud Detection & Content Moderation Engine
 
 A self-learning fraud detection and illegal-goods moderation service for **Tanzanian social commerce and escrow** (TZS, mobile money, rider delivery). It checks every listing and payment and returns a clear decision: **`ALLOW`**, **`HOLD_FOR_REVIEW`**, or **`BLOCK`**.
 

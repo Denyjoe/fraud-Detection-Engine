@@ -1,0 +1,30 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Runtime data (regenerated locally; changes on every request/feedback) ---
+audit_logs.db
+audit_logs.db-wal
+audit_logs.db-shm
+*.db
+models/*.joblib
+models/*.tmp
+
+# --- Secrets & local config ---
+.env
+.env.*
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

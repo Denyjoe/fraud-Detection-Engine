@@ -1,0 +1,129 @@
+id,title,description,images,videos,label
+T001,Vitenge vya Kongo jora 6,Vitenge original vya Kongo rangi kali kwa sherehe na harusi.,,,ALLOW
+T002,Unga wa ngano Azam 2kg,Unga wa ngano kwa maandazi na chapati. Tupo Mbagala.,,,ALLOW
+T003,Tecno Spark 20 mpya,Simu mpya 128GB kamera nzuri. Tunatuma mikoani kwa basi.,,,ALLOW
+T004,Kitanda cha mninga 5x6,Kitanda cha mbao ya mninga na godoro la Tanfoam.,,,ALLOW
+T005,Sabuni ya kufulia Omo 5kg,Omo ya unga kwa kufulia nguo. Bei ya jumla.,,,ALLOW
+T006,Juice ya ukwaju,Juice asilia ya ukwaju chupa 1L bila kemikali.,,,ALLOW
+T007,Saa ya mkononi Casio,Saa original ya Casio waterproof na warranty.,,,ALLOW
+T008,Viatu vya shule,Viatu vya ngozi vya wanafunzi rangi nyeusi size 30 hadi 40.,,,ALLOW
+T009,Begi la mgongo la shule,Begi imara la wanafunzi lina mifuko mitatu.,,,ALLOW
+T010,Pikipiki Boxer 2021,Boxer BM150 kadi ipo inatumika Dodoma.,,,ALLOW
+T011,Mbuzi wa nyama,Mbuzi wawili wazima wa nyama Dodoma.,,,ALLOW
+T012,Cement Dangote mifuko 50,Cement bora kwa ujenzi tunaleta site.,,,ALLOW
+T013,Bati za Alaf geji 28,Bati za rangi bluu na nyekundu mita 3.,,,ALLOW
+T014,Perfume ya Dubai,Perfume ya kudumu masaa 24 ya kiume na kike.,,,ALLOW
+T015,Wigi la human hair,Wigi la nywele asilia inchi 20 lace frontal.,,,ALLOW
+T016,Jiko la gesi burner 2,Jiko la gesi na mtungi wa kilo 6.,,,ALLOW
+T017,Friji Hisense lita 200,Friji mpya na warranty ya miaka 2.,,,ALLOW
+T018,TV Samsung inchi 43,Smart TV Netflix na YouTube zinafanya kazi.,,,ALLOW
+T019,Maharage ya njano kilo 20,Maharage safi kutoka Mbeya.,,,ALLOW
+T020,Asali safi ya Tabora,Asali ya nyuki wa porini lita 1 bila sukari.,,,ALLOW
+T021,Mkaa gunia,Mkaa mzuri gunia kubwa tunaleta nyumbani.,,,ALLOW
+T022,Chaja ya Type-C fast,Chaja original 25W na cable mita 1.,,,ALLOW
+T023,Earbuds za Oraimo,Earbuds zisizo na waya betri masaa 30.,,,ALLOW
+T024,Suti ya kiume,Suti ya kiume rangi ya navy saizi 48 hadi 56.,,,ALLOW
+T025,Kanga za Pwani,Kanga jozi zenye maneno mazuri ya Kiswahili.,,,ALLOW
+T026,Kofia ya mtoto mchanga,Kofia na soksi za watoto wachanga za sufu.,,,ALLOW
+T027,Doll ya watoto,Mdoli wa kuchezea kwa watoto miaka 3 kwenda juu.,,,ALLOW
+T028,Daftari boksi 48,Madaftari ya kurasa 96 kwa wanafunzi wa shule ya msingi.,,,ALLOW
+T029,Ivory white curtains,Mapazia ya rangi ya ivory white kwa sebule.,,,ALLOW
+T030,Massage gun ya misuli,Massage gun yenye speed 6 kwa wanamichezo.,,,ALLOW
+T031,Spray gun ya rangi,Spray gun ya kupaka rangi magari na kuta.,,,ALLOW
+T032,Silencer ya pikipiki,Silencer ya Boxer na TVS original.,,,ALLOW
+T033,Kobe 8 Protro sneakers,Kobe sneakers original size 44.,,,ALLOW
+T034,Mafuta ya nywele,Mafuta ya nywele ya mchaichai na nazi.,,,ALLOW
+T035,Mchaichai fresh,Majani ya mchaichai kwa chai ya asubuhi.,,,ALLOW
+T036,Unga wa lishe kilo 1,Unga wa lishe kwa watoto mchanganyiko wa nafaka.,,,ALLOW
+T037,Kisu cha mkate,Kisu cha mkate cha chuma cha pua.,,,ALLOW
+T038,Penseli za risasi,Penseli za risasi HB boksi 12 kwa shule.,,,ALLOW
+T039,Nguo za ndani za kike,Chupi za pamba saizi zote pakiti ya 6.,,,ALLOW
+T040,Swimsuit ya kike,Swimsuit ya kuogelea rangi nyeusi saizi M.,,,ALLOW
+T041,Cream ya ngozi kavu,Cream ya kulainisha ngozi kavu imesajiliwa TMDA.,,,ALLOW
+T042,Mashine ya kushona Singer,Mashine ya kushona ya mkono inafanya kazi vizuri.,,,ALLOW
+T043,Mbegu za mahindi,Mbegu bora za mahindi DK kwa msimu huu.,,,ALLOW
+T044,Dawa ya mbu,Dawa ya kupuliza mbu na wadudu wa nyumbani.,,,ALLOW
+T045,Chai ya tangawizi,Chai ya tangawizi na majani ya chai pakiti 100.,,,ALLOW
+T046,Bunduki ya kuchezea ya plastiki,Toy ya watoto inatoa sauti na mwanga.,,,ALLOW
+T047,Mafuta ya mawese,Mafuta ya mawese ya Kigoma lita 5.,,,ALLOW
+T048,Ngozi ya ng'ombe kwa viatu,Ngozi ya ng'ombe iliyosindikwa kwa kutengeneza viatu na mikanda.,,,ALLOW
+T049,Kiti cha ofisi,Kiti cha ofisi kinachozunguka chenye magurudumu.,,,ALLOW
+T050,Simu ya kitochi Itel,Simu ndogo ya kitochi betri inakaa siku 5.,,,ALLOW
+T051,Mzigo mpya wa vitenge,Mzigo mpya umefika dukani kwetu Kariakoo.,,,ALLOW
+T052,Shuka za kitanda,Shuka za pamba seti kamili na foronya.,,,ALLOW
+T053,Tiles za sakafu,Tiles za sakafu boksi 1.44 sqm.,,,ALLOW
+T054,Dumbbells kilo 10,Vyuma vya mazoezi jozi mbili.,,,ALLOW
+T055,Mipira ya miguu,Mpira wa miguu size 5 kwa timu za mtaani.,,,ALLOW
+D001,Mzigo wa ganja,Ganja nzuri ya kuvuta tunafanya delivery usiku.,,,BLOCK
+D002,Msokoto mmoja 5000,Misokoto iliyoviringishwa tayari kwa wateja.,,,BLOCK
+D003,M1rung1 freshi,Mirungi ya leo kutoka Same.,,,BLOCK
+D004,Kush ya Arusha,Og kush stimu kali sana.,,,BLOCK
+D005,Unga safi,Unga mweupe gramu ndogo ndogo kwa wateja wa kunusa.,,,BLOCK
+D006,Heroini ipo,Heroin brown sugar kete.,,,BLOCK
+D007,Cocaine pure,Cocaine original kutoka nje.,,,BLOCK
+D008,Bhangi ya Tarime,Bhangi mpya ya msimu huu.,,,BLOCK
+D009,Marijuana edibles,Cakes zenye THC.,,,BLOCK
+D010,Kitenge cha bei poa,Pia nina 🍁 ya kuvuta 💨 nicheki.,,,BLOCK
+W001,Bastora ndogo,Bastora na risasi zake.,,,BLOCK
+W002,Pistol 9mm,Pistol 9mm na magazine mbili.,,,BLOCK
+W003,Risasi za bunduki,Risasi za bunduki boksi 50.,,,BLOCK
+W004,Guruneti ipo,Guruneti za kijeshi.,,,BLOCK
+W005,Bunduki ya kuwinda,Bunduki aina ya rifle na leseni haihitajiki.,,,BLOCK
+W006,Silaha za moto,Silaha za moto zinapatikana kwa siri.,,,BLOCK
+W007,Revolver ya kujilinda,Revolver ndogo ya kubeba mfukoni.,,,BLOCK
+F001,Pesa bandia za dola,Dola feki zinapita kwenye mashine.,,,BLOCK
+F002,Black money cleaning,SSD chemical ya kusafisha pesa nyeusi.,,,BLOCK
+F003,Vyeti vya chuo,Tunatengeneza vyeti bandia vya degree.,,,BLOCK
+F004,Leseni ya udereva,Leseni bila kusoma ndani ya siku 2.,,,BLOCK
+F005,Fake passport,Pasipoti feki za nchi zote.,,,BLOCK
+F006,Carding tutorial,Carding na CVV za kadi za nje.,,,BLOCK
+F007,Kitambulisho cha NIDA,Tunatengeneza kitambulisho feki cha NIDA.,,,BLOCK
+S001,Simu za wizi,Simu za wizi iPhone na Samsung bei ya kutupa.,,,BLOCK
+S002,IMEI changing service,Tunabadilisha IMEI kwa simu zilizofungiwa.,,,BLOCK
+S003,iCloud unlock,iCloud removal kwa iPhone zote.,,,BLOCK
+S004,Mali ya wizi,TV na laptop mali za wizi bei poa.,,,BLOCK
+X001,Escort Mikocheni,Escort girls wazuri wanapatikana usiku.,,,BLOCK
+X002,Dada poa Sinza,Dada poa wa kukodi kwa masaa.,,,BLOCK
+X003,Nudes za warembo,Nudes kwenye telegram channel.,,,BLOCK
+X004,Porn videos flash,Flash yenye porn na video za ngono.,,,BLOCK
+X005,Malaya wa Kinondoni,Malaya wanapatikana lodge.,,,BLOCK
+B001,Viroba jumla,Viroba boksi kwa bei ya jumla.,,,BLOCK
+B002,Pombe ya gongo,Gongo kali kutoka kijijini.,,,BLOCK
+B003,Mikorogo ya kujichubua,Mkorogo unaong'arisha ngozi haraka.,,,BLOCK
+B004,Mercury soap,Sabuni ya mercury ya kujichubua.,,,BLOCK
+B005,Tiba ya ukimwi,Dawa inaponya ukimwi na kisukari.,,,BLOCK
+B006,Mifuko ya rambo,Mifuko ya plastiki kwa jumla.,,,BLOCK
+B007,HIV cure herbal,Herbal medicine that cures HIV in 21 days.,,,BLOCK
+P001,Meno ya tembo,Meno ya tembo vipande vitatu.,,,BLOCK
+P002,Pangolin hai,Kakakuona hai wa kuuza.,,,BLOCK
+P003,Ngozi ya simba,Ngozi ya simba kwa mapambo.,,,BLOCK
+P004,Rhino horn powder,Pembe ya kifaru ya dawa.,,,BLOCK
+Q001,Upatu online,Pesa mara mbili ndani ya wiki.,,,BLOCK
+C001,Mtumba wa jeans,Jeans za mtumba bale. Nicheki watsap 0688 222 333.,,,REVIEW
+C002,Solar panel 100W,Kwa oda tuma ujumbe telegram @solartz_deals.,,,REVIEW
+C003,Kanga mpya,Tembelea www.kangashop.co.tz kwa bei nzuri.,,,REVIEW
+C004,Simu ya iPhone 11,Tuma pesa kwa M-Pesa namba 0765 444 555 kisha nitatuma.,,,REVIEW
+C005,Sofa za kisasa,Piga sifuri saba sita tano moja mbili tatu nne tano sita.,,,REVIEW
+Z001,Codeine syrup,Codeine kwa kikohozi bila cheti cha daktari.,,,REVIEW
+Z002,Sugar daddy wa Masaki,Unatafuta sugar daddy? Nicheki.,,,REVIEW
+Z003,Forex signals guaranteed,Uwekezaji wa uhakika faida kila siku.,,,REVIEW
+Z004,Steroid cream ya ngozi,Clobetasol cream inang'arisha.,,,REVIEW
+Z005,Pepper spray ya kujilinda,Pepper spray kwa wanawake.,,,REVIEW
+Z006,Kasuku wa kijivu,African grey parrot anaongea.,,,REVIEW
+Z007,Prop money ya movie,Prop money za kuigiza.,,,REVIEW
+Z008,Nyama pori,Nyama pori ya swala.,,,REVIEW
+T056,Jacket ya ngozi bandia,Jacket ya fake leather rangi nyeusi saizi L.,,,ALLOW
+T057,Majani makavu ya mifugo,Majani makavu ya kulisha ng'ombe mzigo mzima.,,,ALLOW
+T058,Ivory sandals za kike,Sandals rangi ya ivory saizi 37 hadi 41.,,,ALLOW
+T059,Powder ya uso,Face powder ya makeup rangi zote.,,,ALLOW
+T060,Puff ya kukalia,Puff ya sebuleni ya kitambaa laini.,,,ALLOW
+T061,Joint ya bomba la maji,Joint za PVC inchi 1 kwa mafundi bomba.,,,ALLOW
+T062,Panga imara,Panga la chuma kwa kazi za shamba.,,,ALLOW
+T063,Replica ya jezi ya Simba,Jezi ya Simba SC replica saizi zote.,,,ALLOW
+T064,Kisu cha kuchinjia,Kisu kikali cha kuchinja kuku na mbuzi.,,,ALLOW
+T065,Pipi za kifua,Pipi za kifua za mint pakiti 50.,,,ALLOW
+T066,Bunduki ya kupuliza rangi,Spray gun ya mafundi rangi.,,,ALLOW
+T067,Kobe 5 sneakers,Kobe sneakers used size 42.,,,ALLOW
+T068,Massage ya miguu,Mashine ya massage ya miguu ya umeme.,,,ALLOW
+T069,Connection cable HDMI,HDMI connection cable mita 3.,,,ALLOW
+T070,Tembo cards za kucheza,Karata za kucheza aina ya Tembo.,,,ALLOW

@@ -1,0 +1,95 @@
+id,title,description,images,videos,label
+L01,Unga wa sembe Azam 5kg,Unga safi wa sembe kwa ugali laini. Bei ya jumla Kariakoo.,,,ALLOW
+L02,Majani ya chai Lipton 500g,Chai ya majani ya kijani kutoka milima ya Usambara. Ladha nzuri asubuhi.,,,ALLOW
+L03,Glue gun ya umeme 40W,Glue gun na sticks 10 bure. Inafaa kwa kazi za mikono na mapambo.,,,ALLOW
+L04,Silencer ya gari Toyota IST,Silencer original ya Toyota IST used inafanya kazi vizuri. Tunafunga Gerezani.,,,ALLOW
+L05,Ivory colour wedding dress,Gauni la harusi rangi ya ivory saizi M na L. Lace nzuri ya kisasa.,,,ALLOW
+L06,Kobe Bryant shoes size 43,Nike Kobe 6 Protro original zimevaliwa mara mbili tu.,,,ALLOW
+L07,Massage chair ya umeme,Kiti cha massage chenye heat na remote. Kinafaa nyumbani na ofisini.,,,ALLOW
+L08,Heroine DVD na movies za Bollywood,Flash yenye movies 20 ikiwemo Heroine (2012) na nyingine mpya.,,,ALLOW
+L09,Piston rings Toyota Hiace,Piston na rings set kamili kwa engine 2L. Spare original.,,,ALLOW
+L10,Seti ya visu vya jikoni,Visu 6 vya chuma cha pua. Kisu cha kukata nyama na mboga kipo.,,,ALLOW
+L11,Gauni la kitenge,Gauni zuri la kitenge pamba safi saizi zote. Delivery Dar es Salaam.,tests/assets/kitenge_dress.jpg,,ALLOW
+L12,iPhone 12 Pro 128GB,Simu safi iCloud clean IMEI clean betri 89% na risiti ya dukani.,,,ALLOW
+L13,Samsung A15 mpya kwenye box,Simu mpya. WhatsApp na Instagram zinafanya kazi vizuri. Warranty mwaka 1.,tests/assets/smartphone.jpg,,ALLOW
+L14,Vitabu vya hadithi za watoto,Vitabu vya hadithi kwa watoto wa shule ya msingi Kiswahili na Kiingereza.,,,ALLOW
+L15,Nguo za watoto miaka 3-5,Seti ya nguo za watoto pamba laini rangi tofauti.,,,ALLOW
+L16,Bunduki ya maji ya kuchezea,Toy gun ya maji kwa watoto. Inafaa likizo ya beach.,tests/assets/toy_gun.jpg,,ALLOW
+L17,Weed killer Roundup 1L,Dawa ya kuua magugu shambani. Roundup original kutoka kwa wakala.,,,ALLOW
+L18,Baby powder Johnson 500g,Poda ya mtoto laini original ya Johnson.,,,ALLOW
+L19,Mchele wa Kyela kilo 25,Mchele safi wa Kyela unaonukia. Bei ya jumla kwa maduka.,,,ALLOW
+L20,Sofa set viti 5,Sofa za mbao ngumu kitambaa cha velvet. Tunaleta mpaka nyumbani.,,,ALLOW
+L21,Mafuta ya kupikia Korie 5L,Mafuta ya alizeti safi bei nafuu.,,,ALLOW
+L22,Solar panel 200W na inverter,Solar panel na inverter warranty mwaka 1. Tunafunga mikoani.,,,ALLOW
+L23,Toyota IST spare parts,Spare za IST: taa side mirror bumper. Tupo Kariakoo mtaa wa Narung'ombe.,,,ALLOW
+L24,Leopard print handbag,Mkoba wa leopard print ngozi bandia nzuri sana kwa sherehe.,,,ALLOW
+L25,Fake nails na lashes,Kucha za bandia na fake lashes salon quality. Bei ya jumla.,,,ALLOW
+L26,Cream ya maumivu ya joint,Cream ya kupaka kwa maumivu ya joint na misuli. Imesajiliwa TMDA.,,,ALLOW
+L27,Blouse ya puff sleeves,Blouse nyeupe ya puff sleeves saizi S hadi XL.,,,ALLOW
+L28,Brown sugar kilo 1,Sukari ya brown kwa keki na chai. Kilo moja.,,,ALLOW
+L29,Mashine ya ice cream,Mashine ya kutengeneza ice cream kwa biashara ndogo.,,,ALLOW
+L30,Ford Escort 1998 inauzwa,Gari Ford Escort manual engine nzuri kadi ipo. Bei maelewano.,,,ALLOW
+L31,Mifuko ya karatasi rafiki wa mazingira,Mifuko ya karatasi na ya kitambaa kwa maduka. Oda ya jumla.,,,ALLOW
+L32,Massage oil ya nazi,Mafuta ya nazi safi kwa ngozi na massage. Chupa 250ml.,,,ALLOW
+L33,Pipi za watoto boksi,Pipi za watoto za ladha tofauti boksi 100.,,,ALLOW
+L34,Majani ya mlonge kwa afya,Majani ya mlonge yaliyokaushwa unga wake ni mzuri kwa chai.,,,ALLOW
+L35,Plot inauzwa Gongo la Mboto,Kiwanja mita 20 kwa 30 Gongo la Mboto hati ipo.,,,ALLOW
+L36,Panga la shamba,Panga la shamba imara kwa kilimo na kukata majani.,,,ALLOW
+L37,Kalamu za risasi boksi 12,Penseli ya risasi HB kwa wanafunzi.,,,ALLOW
+L38,Bangili za dhahabu,Bangili nzuri za dhahabu kwa harusi na sherehe.,,,ALLOW
+L39,Raba nzuri za Nike,Sneakers mpya size 40 hadi 45 rangi nyeupe.,tests/assets/sneakers.jpg,,ALLOW
+L40,Sukuma wiki fresh,Mboga za majani kutoka shambani kila asubuhi.,tests/assets/leafy_greens.jpg,,ALLOW
+L41,Baiskeli ya Phoenix,Baiskeli imara kwa usafiri wa kila siku.,tests/assets/bicycle.jpg,,ALLOW
+L42,Kuku wa kienyeji 10,Kuku wa kienyeji wazima wanataga. Tupo Kibaha.,,,ALLOW
+L43,Laptop HP EliteBook 840,Core i5 RAM 8GB SSD 256GB. Mzigo mpya umefika.,,,ALLOW
+L44,Mafuta ya kujipaka ya watoto,Lotion ya watoto isiyo na kemikali kali. Imesajiliwa TMDA.,,,ALLOW
+L45,Kitunguu saumu kilo 5,Kitunguu saumu kutoka Mbeya kwa bei ya shambani.,,,ALLOW
+V01,Nauza b4ng1 kali,Mzigo umefika vuta upate stimu.,,,BLOCK
+V02,B.A.N.G.I ipo,Kwa wanaohitaji ipo ya kutosha.,,,BLOCK
+V03,baaangi safi kabisa,Cha Arusha original.,,,BLOCK
+V04,Mirungi fresh kutoka Meru,Miraa mpya kila asubuhi.,,,BLOCK
+V05,Kete za ngada,Unga mweupe wa kunusa gramu moja.,,,BLOCK
+V06,Gauni la harusi,Gauni zuri. Pia kuna msokoto na majani ya kuvuta.,,,BLOCK
+V07,Raba nzuri za Nike,Sneakers mpya size 42.,tests/assets/cannabis.jpg,,BLOCK
+V08,Viatu vya kiume,Viatu vya ngozi bei nafuu.,tests/assets/pistol.jpg,,BLOCK
+V09,Bastola ya kujilinda,Glock 19 na risasi 50 zinapatikana.,,,BLOCK
+V10,Shotgun inauzwa,Inauzwa bila leseni bei poa.,,,BLOCK
+V11,AK47 na magazine,Full auto ipo Arusha.,,,BLOCK
+V12,Pembe za ndovu kilo 10,Meno ya tembo raw kutoka mbugani.,,,BLOCK
+V13,Magamba ya kakakuona,Pangolin scales kwa dawa za asili.,,,BLOCK
+V14,Ngozi ya chui original,Leopard skin kwa mapambo ya ukumbi.,,,BLOCK
+V15,Samani za nyumbani,Bidhaa za mbao nzuri kwa sebule.,tests/assets/ivory_tusks.jpg,,BLOCK
+V16,Noti bandia za elfu kumi,Pesa feki hazitambuliki dukani.,,,BLOCK
+V17,Tunatengeneza vyeti,Vyeti feki vya kidato cha nne na leseni bila kusoma.,,,BLOCK
+V18,Cloned cards na CVV,Fullz zipo na ATM skimmer.,,,BLOCK
+V19,iCloud bypass na IMEI change,Tunabadilisha IMEI ya simu za wizi.,,,BLOCK
+V20,Simu za wizi bei poa,iPhone 14 usiulize zimetoka wapi.,,,BLOCK
+V21,Escort services Masaki,Call girls warembo short time na long time.,,,BLOCK
+V22,Video za ngono,Picha za uchi zipo kwenye group.,,,BLOCK
+V23,Massage ya happy ending,Body to body massage Sinza.,,,BLOCK
+V24,Viroba vya konyagi,Pombe ya viroba boksi zima.,,,BLOCK
+V25,Gongo safi lita 20,Pombe ya gongo kali.,,,BLOCK
+V26,Mkorogo wa kujichubua,Cream ya kujichubua inang'arisha siku 7.,,,BLOCK
+V27,Hydroquinone cream 4%,Skin bleaching cream original.,,,BLOCK
+V28,Dawa ya kuponya ukimwi,Tiba ya mitishamba inaponya HIV ndani ya siku 30.,,,BLOCK
+V29,Mifuko ya plastiki jumla,Plastic carrier bags kwa maduka.,,,BLOCK
+V30,Pesa mara mbili,Tuma 50000 upate 100000 ndani ya masaa 24.,,,BLOCK
+V31,Majani 🍁 💨,Ya kuvuta kali sana.,,,BLOCK
+V32,Mapambo ya shaba,Hereni na mikufu ya kisasa.,tests/assets/bullets.jpg,,BLOCK
+V33,bаngi ipo (homoglyph),Ya kutosha kwa wateja.,,,BLOCK
+V34,Shisha flavour zote,Shisha pipe na mkaa wake.,,,BLOCK
+V35,Rifle ya kuwinda,Ina risasi zake na scope.,,,BLOCK
+R01,Gauni la kitenge,Bei 25000 nicheki WhatsApp 0712 345 678.,,,REVIEW
+R02,iPhone 13 used,Lipa namba 123456 kabla ya delivery.,,,REVIEW
+R03,Sneakers original,Join telegram t.me/dealztz kwa bei nzuri.,,,REVIEW
+R04,Gauni la kitenge,Saizi zote.,tests/assets/smartphone.jpg,,REVIEW
+R05,Tramadol vidonge,Dawa ya maumivu makali boksi.,,,REVIEW
+R06,Upatu wa kila wiki,Jiunge na kikundi chetu.,,,REVIEW
+R07,Fixed matches za uhakika,Jiunge uwe tajiri.,,,REVIEW
+R08,Sugar mummy connection,Nina connection ya sugar mummy wa Masaki.,,,REVIEW
+R09,FRP bypass huduma,Tunaondoa Google account kwenye simu.,,,REVIEW
+R10,Skin whitening cream,Cream ya kung'arisha ngozi haraka.,,,REVIEW
+R11,Sex toys original,Zinapatikana kwa siri.,,,REVIEW
+R12,Rolling papers na grinder,Raw papers bei ya jumla.,,,REVIEW
+R13,Viatu vya ngozi,Kwa oda piga 0754-111-222.,,,REVIEW
+R14,Kokaine safi,Ipo kwa wateja wachache.,,,REVIEW

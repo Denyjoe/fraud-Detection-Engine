@@ -48,7 +48,7 @@ class AuditLogRepository:
             slang_score (float): Illegal goods/slang risk score (0.0 to 1.0).
             nsfw_detected (bool): Whether adult or abusive content was flagged.
             fraud_probability (float): Combined fraud risk probability (0.0 to 1.0).
-            decision (str): Final system decision (ALLOW, HOLD_FOR_REVIEW, BLOCK).
+            decision (str): Final system decision (ALLOW, REVIEW, BLOCK, ESCALATE).
             flagged_keywords (List[str]): Prohibited or slang words detected.
 
         Returns:
@@ -97,7 +97,7 @@ class AuditLogRepository:
             price_tzs (float): Transaction amount in TZS.
             features (Dict[str, Any]): Feature vector evaluated by the ML model.
             fraud_probability (float): Model predicted fraud probability (0.0 to 1.0).
-            decision (str): Transaction risk decision (ALLOW, HOLD_FOR_REVIEW, BLOCK).
+            decision (str): Transaction risk decision (ALLOW, REVIEW, BLOCK, ESCALATE).
 
         Returns:
             int: Inserted row identifier.

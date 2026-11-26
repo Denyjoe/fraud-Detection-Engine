@@ -12,7 +12,6 @@ to `models/fraud_model.joblib`.
 
 import logging
 import random
-from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from river import metrics

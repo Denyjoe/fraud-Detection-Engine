@@ -1,0 +1,58 @@
+{
+  "_comment": "Thresholds and model names for the moderation engine. Edit and restart the server. Environment variables FRAUD_CONFIG_PATH / LEXICON_PATH point to alternative files.",
+
+  "device": "auto",
+
+  "models": {
+    "text_zero_shot": {"enabled": true, "name": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"},
+    "translation": {"enabled": false, "name": "facebook/nllb-200-distilled-600M"},
+    "clip": {"enabled": true, "name": "openai/clip-vit-base-patch32"},
+    "nsfw_classifier": {"enabled": true, "name": "Falconsai/nsfw_image_detection"},
+    "nudenet": {"enabled": true},
+    "ocr": {"enabled": true, "languages": ["en"]},
+    "age_estimator": {"enabled": true, "name": "nateraw/vit-age-classifier"},
+    "speech_to_text": {"enabled": false, "name": "openai/whisper-base"}
+  },
+
+  "text": {
+    "fuzzy_min_length": 5,
+    "zero_shot_review_threshold": 0.95,
+    "zero_shot_max_normal": 0.15
+  },
+
+  "image": {
+    "nsfw_block_threshold": 0.85,
+    "nsfw_review_threshold": 0.55,
+    "nudenet_block_threshold": 0.60,
+    "nudenet_review_threshold": 0.40,
+    "clip_contraband_block_threshold": 0.75,
+    "clip_contraband_review_threshold": 0.50,
+    "clip_mismatch_threshold": 0.70,
+    "clip_mismatch_max_claimed": 0.10,
+    "phash_max_distance": 6,
+    "youth_age_buckets": ["0-2", "3-9", "10-19"],
+    "youth_probability_threshold": 0.35,
+    "max_image_pixels": 40000000
+  },
+
+  "video": {
+    "frames_to_sample": 8,
+    "max_seconds_analyzed": 600,
+    "transcribe_audio": false
+  },
+
+  "decision": {
+    "block_score": 0.80,
+    "review_score": 0.35,
+    "review_when_media_unchecked": true,
+    "meta_min_review_threshold": 0.50,
+    "meta_min_block_threshold": 0.85,
+    "meta_model_path": "models/meta_model.joblib"
+  },
+
+  "api": {
+    "max_files": 10,
+    "max_file_mb": 25,
+    "cors_origins": []
+  }
+}

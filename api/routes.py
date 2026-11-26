@@ -1,18 +1,25 @@
 """FastAPI Route Handlers.
 
-Exposes REST endpoints for:
-- Pre-listing moderation (Layer 1 + Layer 2)
-- Real-time escrow transaction risk scoring
-- Continuous online learning feedback
-- System metrics and audit queries
+Endpoints:
+- ``POST /moderate``: content moderation for the store backend (multipart: title,
+  description, files[]) -> ALLOW / REVIEW / BLOCK / ESCALATE.
+- ``/api/v1/...``: pre-listing moderation with seller/price risk (Layer 1 + Layer 2),
+  escrow transaction scoring, online-learning feedback, metrics and audit queries.
+
+Handlers are plain ``def`` functions so FastAPI runs the CPU-heavy model inference in
+its thread pool instead of blocking the event loop. When ``MODERATION_API_KEY`` is set,
+every endpoint here requires the header ``X-API-Key``.
 """
 
-import base64
+import hmac
 import logging
-from typing import Optional
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+import os
+import uuid
+from typing import Any, Dict, List, Optional
 
-from database.repository import AuditLogRepository
+from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, UploadFile, status
+
+from config.settings import CONFIG
 from schemas.api_schemas import (
     AuditLogItem,
     AuditStatsResponse,
@@ -20,17 +27,40 @@ from schemas.api_schemas import (
     FeedbackResponse,
     ModerateListingRequest,
     ModerateListingResponse,
+    ModerateResponse,
     SystemMetricsResponse,
     TransactionRiskRequest,
     TransactionRiskResponse,
 )
+from services.moderation_layer1 import MediaFile
 from services.moderation_orchestrator import ModerationOrchestrator
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1", tags=["Fraud & Moderation Engine"])
+API_CFG: Dict[str, Any] = CONFIG["api"]
+_RESPONSE_KEYS = {"decision", "score", "categories", "reasons", "seller_message_sw", "seller_message_en",
+                  "category", "checks", "processing_ms", "audit_log_id"}
 
-# Global singleton orchestrator
+
+def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
+    """Check ``X-API-Key`` against ``MODERATION_API_KEY`` (no check when the variable is unset).
+
+    Parameters:
+        x_api_key (Optional[str]): Header value.
+
+    Raises:
+        HTTPException: 401 when the key is missing or wrong.
+    """
+    expected = os.getenv("MODERATION_API_KEY")
+    if not expected:
+        return
+    if not x_api_key or not hmac.compare_digest(x_api_key.encode(), expected.encode()):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing X-API-Key")
+
+
+router = APIRouter(prefix="/api/v1", tags=["Fraud & Moderation Engine"], dependencies=[Depends(require_api_key)])
+moderation_router = APIRouter(tags=["Content Moderation"], dependencies=[Depends(require_api_key)])
+
 _orchestrator_instance: Optional[ModerationOrchestrator] = None
 
 
@@ -46,13 +76,71 @@ def get_orchestrator() -> ModerationOrchestrator:
     return _orchestrator_instance
 
 
+def read_uploads(uploads: List[UploadFile]) -> List[MediaFile]:
+    """Read uploaded files, enforcing the count and size limits from config.json.
+
+    Parameters:
+        uploads (List[UploadFile]): Multipart files.
+
+    Returns:
+        List[MediaFile]: File contents.
+
+    Raises:
+        HTTPException: 413 when there are too many files or one is too large.
+    """
+    uploads = [u for u in uploads if u is not None and (u.filename or "")]
+    max_files = int(API_CFG.get("max_files", 10))
+    max_bytes = int(float(API_CFG.get("max_file_mb", 25)) * 1024 * 1024)
+    if len(uploads) > max_files:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, f"At most {max_files} files per listing")
+    media: List[MediaFile] = []
+    for upload in uploads:
+        data = upload.file.read(max_bytes + 1)
+        if len(data) > max_bytes:
+            raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                                f"{upload.filename} is larger than {API_CFG.get('max_file_mb', 25)} MB")
+        media.append(MediaFile(upload.filename or "upload", data, upload.content_type))
+    return media
+
+
+@moderation_router.post("/moderate", response_model=ModerateResponse, summary="Moderate one listing (multipart)")
+def moderate(
+    title: str = Form(..., min_length=1, max_length=300),
+    description: str = Form("", max_length=10000),
+    files: List[UploadFile] = File(default=[]),
+    listing_id: Optional[str] = Form(None),
+    seller_id: Optional[str] = Form(None),
+    category: Optional[str] = Form(None),
+    price_tzs: Optional[float] = Form(None, ge=0),
+    orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
+) -> ModerateResponse:
+    """Check a listing's text, images and videos.
+
+    Returns ALLOW / REVIEW / BLOCK / ESCALATE with reasons and a Swahili seller message.
+    ESCALATE means *urgent human review* (child-safety); hide the listing immediately.
+    """
+    media = read_uploads(files)
+    try:
+        result = orchestrator.moderate_content(
+            title=title, description=description, files=media,
+            listing_id=listing_id or f"LIST-{uuid.uuid4().hex[:12]}", seller_id=seller_id or "unknown",
+            category=category, price_tzs=price_tzs or 0.0,
+        )
+    except Exception:
+        logger.exception("Moderation failed for listing %s", listing_id)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Moderation failed; please retry.")
+    payload = {k: result[k] for k in _RESPONSE_KEYS}
+    payload["details"] = {k: v for k, v in result.items() if k not in _RESPONSE_KEYS}
+    return ModerateResponse(**payload)
+
+
 @router.post(
     "/moderate-listing",
     response_model=ModerateListingResponse,
     status_code=status.HTTP_200_OK,
     summary="Moderate Listing Pre-Upload (Layer 1 + Layer 2)",
 )
-async def moderate_listing(
+def moderate_listing(
     payload: ModerateListingRequest,
     orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
 ) -> ModerateListingResponse:
@@ -63,7 +151,7 @@ async def moderate_listing(
         orchestrator (ModerationOrchestrator): Injected orchestrator service.
 
     Returns:
-        ModerateListingResponse: Moderation findings, fraud probability, and ALLOW/HOLD/BLOCK status.
+        ModerateListingResponse: Moderation findings, fraud probability and ALLOW/REVIEW/BLOCK/ESCALATE.
     """
     try:
         result = orchestrator.moderate_listing(
@@ -81,21 +169,20 @@ async def moderate_listing(
             category=payload.category,
         )
         return ModerateListingResponse(**result)
-    except Exception as exc:
-        logger.error("Error moderating listing %s: %s", payload.listing_id, exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to moderate listing: {str(exc)}",
-        )
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"Invalid input: {type(exc).__name__}")
+    except Exception:
+        logger.exception("Error moderating listing %s", payload.listing_id)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to moderate listing.")
 
 
 @router.post(
     "/moderate-listing-upload",
     response_model=ModerateListingResponse,
     status_code=status.HTTP_200_OK,
-    summary="Moderate Listing with Direct Multipart Image File Upload",
+    summary="Moderate Listing with Multipart Image/Video Upload (Layer 1 + Layer 2)",
 )
-async def moderate_listing_upload(
+def moderate_listing_upload(
     listing_id: str = Form(...),
     seller_id: str = Form(...),
     title: str = Form(...),
@@ -108,46 +195,33 @@ async def moderate_listing_upload(
     hour_of_day: int = Form(12),
     is_repeat_buyer_same_day: int = Form(0),
     image: Optional[UploadFile] = File(None),
+    files: List[UploadFile] = File(default=[]),
     orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
 ) -> ModerateListingResponse:
-    """Evaluate product listing accepting multipart form-data and binary file upload.
-
-    Parameters:
-        listing_id (str): Unique listing ID.
-        seller_id (str): Seller ID.
-        title (str): Title.
-        description (str): Description.
-        price_tzs (float): Price in TZS.
-        category (Optional[str]): Product category.
-        account_age_days (float): Age of account in days.
-        seller_completed_orders (int): Past completed orders.
-        seller_dispute_rate (float): Dispute rate (0.0 to 1.0).
-        hour_of_day (int): Hour (0 to 23).
-        is_repeat_buyer_same_day (int): Velocity flag.
-        image (Optional[UploadFile]): Uploaded photo file.
-        orchestrator (ModerationOrchestrator): Injected orchestrator.
+    """Evaluate a listing from multipart form-data (``image`` and/or ``files[]``).
 
     Returns:
         ModerateListingResponse: Full moderation evaluation.
     """
-    image_bytes = None
-    if image is not None:
-        image_bytes = await image.read()
-
-    result = orchestrator.moderate_listing(
-        listing_id=listing_id,
-        seller_id=seller_id,
-        title=title,
-        description=description,
-        price_tzs=price_tzs,
-        account_age_days=account_age_days,
-        seller_completed_orders=seller_completed_orders,
-        seller_dispute_rate=seller_dispute_rate,
-        image_data=image_bytes,
-        hour_of_day=hour_of_day,
-        is_repeat_buyer_same_day=is_repeat_buyer_same_day,
-        category=category,
-    )
+    media = read_uploads(([image] if image is not None else []) + list(files))
+    try:
+        result = orchestrator.moderate_listing(
+            listing_id=listing_id,
+            seller_id=seller_id,
+            title=title,
+            description=description,
+            price_tzs=price_tzs,
+            account_age_days=account_age_days,
+            seller_completed_orders=seller_completed_orders,
+            seller_dispute_rate=seller_dispute_rate,
+            hour_of_day=hour_of_day,
+            is_repeat_buyer_same_day=is_repeat_buyer_same_day,
+            category=category,
+            files=media,
+        )
+    except Exception:
+        logger.exception("Error moderating uploaded listing %s", listing_id)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to moderate listing.")
     return ModerateListingResponse(**result)
 
 
@@ -157,7 +231,7 @@ async def moderate_listing_upload(
     status_code=status.HTTP_200_OK,
     summary="Score Escrow Transaction Risk Pre-Lock",
 )
-async def predict_transaction(
+def predict_transaction(
     payload: TransactionRiskRequest,
     orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
 ) -> TransactionRiskResponse:
@@ -168,7 +242,7 @@ async def predict_transaction(
         orchestrator (ModerationOrchestrator): Injected orchestrator.
 
     Returns:
-        TransactionRiskResponse: Fraud probability and ALLOW/HOLD/BLOCK decision.
+        TransactionRiskResponse: Fraud probability and ALLOW/REVIEW/BLOCK decision.
     """
     try:
         result = orchestrator.evaluate_transaction(
@@ -187,12 +261,9 @@ async def predict_transaction(
             price_to_category_median_ratio=payload.price_to_category_median_ratio,
         )
         return TransactionRiskResponse(**result)
-    except Exception as exc:
-        logger.error("Error evaluating transaction %s: %s", payload.transaction_id, exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to score transaction: {str(exc)}",
-        )
+    except Exception:
+        logger.exception("Error evaluating transaction %s", payload.transaction_id)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to score transaction.")
 
 
 @router.post(
@@ -201,7 +272,7 @@ async def predict_transaction(
     status_code=status.HTTP_200_OK,
     summary="Submit Online Learning Feedback (.learn_one)",
 )
-async def submit_feedback(
+def submit_feedback(
     payload: FeedbackRequest,
     orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
 ) -> FeedbackResponse:
@@ -222,73 +293,29 @@ async def submit_feedback(
             comment=payload.comment,
         )
         return FeedbackResponse(**result)
-    except Exception as exc:
-        logger.error("Error processing feedback for %s: %s", payload.transaction_id, exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to process feedback: {str(exc)}",
-        )
+    except Exception:
+        logger.exception("Error processing feedback for %s", payload.transaction_id)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to process feedback.")
 
 
-@router.get(
-    "/metrics",
-    response_model=SystemMetricsResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get Running System Metrics & Audit Stats",
-)
-async def get_metrics(
-    orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
-) -> SystemMetricsResponse:
-    """Retrieve cumulative statistics on inferences, feedbacks, and model accuracy.
-
-    Parameters:
-        orchestrator (ModerationOrchestrator): Injected orchestrator.
-
-    Returns:
-        SystemMetricsResponse: Aggregated metrics dictionary.
-    """
+def _metrics(orchestrator: ModerationOrchestrator) -> SystemMetricsResponse:
+    """Build the metrics response from the repository."""
     metrics = orchestrator.repository.get_metrics_summary()
-    return SystemMetricsResponse(
-        total_inferences=metrics.get("total_inferences", 0.0),
-        total_feedbacks=metrics.get("total_feedbacks", 0.0),
-        running_accuracy=metrics.get("running_accuracy", 0.0),
-        running_f1=metrics.get("running_f1", 0.0),
-        total_listings_moderated=metrics.get("total_listings_moderated", 0.0),
-        total_transactions_evaluated=metrics.get("total_transactions_evaluated", 0.0),
-        total_feedback_events=metrics.get("total_feedback_events", 0.0),
-    )
+    return SystemMetricsResponse(**{key: metrics.get(key, 0.0) for key in SystemMetricsResponse.model_fields})
 
 
-@router.get(
-    "/audit-stats",
-    response_model=AuditStatsResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get Detailed Audit Ledger and Model Health for Workbench",
-)
-async def get_audit_stats(
-    orchestrator: ModerationOrchestrator = Depends(get_orchestrator),
-) -> AuditStatsResponse:
-    """Fetch recent audit logs alongside running accuracy and feedback telemetry.
+@router.get("/metrics", response_model=SystemMetricsResponse, summary="Get Running System Metrics & Audit Stats")
+def get_metrics(orchestrator: ModerationOrchestrator = Depends(get_orchestrator)) -> SystemMetricsResponse:
+    """Retrieve cumulative statistics on inferences, feedbacks, and model accuracy."""
+    return _metrics(orchestrator)
 
-    Parameters:
-        orchestrator (ModerationOrchestrator): Injected orchestrator.
 
-    Returns:
-        AuditStatsResponse: Latest 15 unified logs with system metrics.
-    """
-    metrics = orchestrator.repository.get_metrics_summary()
+@router.get("/audit-stats", response_model=AuditStatsResponse, summary="Get Audit Ledger and Model Health")
+def get_audit_stats(orchestrator: ModerationOrchestrator = Depends(get_orchestrator)) -> AuditStatsResponse:
+    """Fetch recent audit logs alongside running accuracy and feedback telemetry."""
     recent_logs_raw = orchestrator.repository.get_recent_audit_logs(limit=15)
-    
     return AuditStatsResponse(
-        metrics=SystemMetricsResponse(
-            total_inferences=metrics.get("total_inferences", 0.0),
-            total_feedbacks=metrics.get("total_feedbacks", 0.0),
-            running_accuracy=metrics.get("running_accuracy", 0.0),
-            running_f1=metrics.get("running_f1", 0.0),
-            total_listings_moderated=metrics.get("total_listings_moderated", 0.0),
-            total_transactions_evaluated=metrics.get("total_transactions_evaluated", 0.0),
-            total_feedback_events=metrics.get("total_feedback_events", 0.0),
-        ),
+        metrics=_metrics(orchestrator),
         recent_logs=[AuditLogItem(**item) for item in recent_logs_raw],
         model_type="River Incremental Pipeline (StandardScaler + LogisticRegression)",
         active_currency="TZS",

@@ -15,10 +15,9 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from config.settings import DECISION_ALLOW, DECISION_BLOCK, DECISION_HOLD
+from config.settings import DECISION_ALLOW, DECISION_BLOCK, DECISION_REVIEW
 from main import app
-from services.moderation_layer1 import ContentModerationLayer1
-from services.fraud_model_layer2 import OnlineFraudModelLayer2
+from services.lexicon import get_lexicon
 
 
 @pytest.fixture
@@ -126,29 +125,18 @@ def sample_grocery_image_base64() -> str:
 
 @pytest.fixture
 def sample_cannabis_image_base64() -> str:
-    """Fixture generating a realistic cannabis foliage drawing as base64 string.
+    """Fixture loading a real photo of cannabis buds (public Wikimedia image, see tests/assets/SOURCES.md).
+
+    A real photo replaced the earlier hand-drawn leaf polygon: a clip-art drawing is
+    (correctly) only sent to REVIEW, while this test is about a real contraband photo.
 
     Returns:
-        str: Base64 encoded JPEG image of cannabis / weed leaves.
+        str: Base64 encoded JPEG photo of cannabis buds.
     """
-    import math
-    from PIL import ImageDraw
+    from pathlib import Path
 
-    img = Image.new("RGB", (224, 224), color=(245, 245, 245))
-    draw = ImageDraw.Draw(img)
-    # Draw central green stem
-    draw.line([(112, 200), (112, 100)], fill=(20, 80, 30), width=5)
-
-    # Radiate 7 serrated palmate leaf lobes
-    for angle, length in [(-60, 60), (-35, 80), (-15, 95), (0, 105), (15, 95), (35, 80), (60, 60)]:
-        rad = math.radians(angle - 90)
-        tx = 112 + math.cos(rad) * length
-        ty = 120 + math.sin(rad) * length
-        draw.polygon([(112, 120), (tx - 10, ty + 10), (tx, ty), (tx + 10, ty + 10)], fill=(34, 139, 34), outline=(0, 100, 0))
-
-    buffer = io.BytesIO()
-    img.save(buffer, format="JPEG")
-    return base64.b64encode(buffer.getvalue()).decode("utf-8")
+    photo = Path(__file__).resolve().parent / "tests" / "assets" / "cannabis.jpg"
+    return base64.b64encode(photo.read_bytes()).decode("utf-8")
 
 
 @pytest.fixture
@@ -213,67 +201,57 @@ def test_health_endpoint(client: TestClient) -> None:
 
 
 def test_layer1_swahili_slang_detection() -> None:
-    """Verify Layer 1 lexicon detects Swahili illegal goods and coded slang."""
-    layer1 = ContentModerationLayer1(use_real_clip=False)
+    """Verify the Layer 1 lexicon detects Swahili illegal goods and coded slang."""
+    lexicon = get_lexicon()
+
+    def analyse(text: str):
+        result = lexicon.analyse(text)
+        worst = result.worst()
+        terms = {t for c in result.categories.values() for t in c.terms}
+        return (worst.score if worst else 0.0), terms, result.categories
 
     # Test 1: Narcotics (Bangi & Cha Arusha)
-    score, matched, categories = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Nauza mzigo safi wa cha arusha na bangi freshi kwa bei poa"
-    )
+    score, matched, categories = analyse("Nauza mzigo safi wa cha arusha na bangi freshi kwa bei poa")
     assert score >= 0.85
     assert "bangi" in matched
     assert "cha arusha" in matched
-    assert categories.get("NARCOTICS", 0) >= 2
+    assert categories["DRUGS"].level == DECISION_BLOCK
 
     # Test 2: Firearms (Bastola)
-    score_weapon, matched_weapon, categories_weapon = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Kuna bastola ndogo na risasi zinapatikana Mwenge"
-    )
+    score_weapon, matched_weapon, categories_weapon = analyse("Kuna bastola ndogo na risasi zinapatikana Mwenge")
     assert score_weapon >= 0.90
     assert "bastola" in matched_weapon
     assert "risasi" in matched_weapon
-    assert categories_weapon.get("WEAPONS", 0) >= 2
+    assert categories_weapon["WEAPONS"].level == DECISION_BLOCK
 
     # Test 3: Financial Scam (Upatu / Pesa mara mbili)
-    score_scam, matched_scam, _ = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Jiunge na upatu upate pesa mara mbili ndani ya masaa 24 tuma kwa namba hii"
-    )
+    score_scam, matched_scam, _ = analyse("Jiunge na upatu upate pesa mara mbili ndani ya masaa 24 tuma kwa namba hii")
     assert score_scam >= 0.80
     assert "upatu" in matched_scam
     assert "pesa mara mbili" in matched_scam
 
     # Test 4: Benign text (Gauni la kitenge Kariakoo)
-    score_clean, matched_clean, _ = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Gauni zuri la kitenge pamba safi kutoka Kariakoo, rangi ya bluu"
-    )
+    score_clean, matched_clean, _ = analyse("Gauni zuri la kitenge pamba safi kutoka Kariakoo, rangi ya bluu")
     assert score_clean == 0.0
     assert len(matched_clean) == 0
 
     # Test 5: Context Disambiguation - Unga wa Sembe vs Narcotics
-    score_flour, matched_flour, _ = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Nauza unga wa sembe kilo 5 safi kabisa wa Dona kwa bei poa"
-    )
+    score_flour, matched_flour, _ = analyse("Nauza unga wa sembe kilo 5 safi kabisa wa Dona kwa bei poa")
     assert score_flour == 0.0
     assert len(matched_flour) == 0
 
     # Test 6: Context Disambiguation - Kisu cha Jikoni vs Combat Weapon
-    score_knife, matched_knife, _ = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Seti ya visu vya jikoni na kisu cha nyama vya chuma cha pua"
-    )
+    score_knife, matched_knife, _ = analyse("Seti ya visu vya jikoni na kisu cha nyama vya chuma cha pua")
     assert score_knife == 0.0
     assert len(matched_knife) == 0
 
     # Test 7: Context Disambiguation - Majani ya Chai vs Cannabis
-    score_tea, matched_tea, _ = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Majani ya chai ya kijani kutoka milima ya Usambara Tanga"
-    )
+    score_tea, matched_tea, _ = analyse("Majani ya chai ya kijani kutoka milima ya Usambara Tanga")
     assert score_tea == 0.0
     assert len(matched_tea) == 0
 
     # Test 8: Real Contraband Unga (Narcotics context)
-    score_drug_unga, matched_drug_unga, _ = layer1.analyze_swahili_slang_and_prohibited_terms(
-        "Kuna mzigo wa unga mweupe na kete za ngada"
-    )
+    score_drug_unga, matched_drug_unga, _ = analyse("Kuna mzigo wa unga mweupe na kete za ngada")
     assert score_drug_unga >= 0.85
     assert any("unga" in m for m in matched_drug_unga)
 
@@ -378,8 +356,8 @@ def test_real_clip_cannabis_image_with_innocent_gauni_title_blocked(
     assert data["fraud_probability"] >= 0.90, f"Expected prob >= 0.90, got {data['fraud_probability']}"
     assert data["visual_contraband_detected"] is True, "Expected visual_contraband_detected to be True"
     assert "cannabis" in data["top_visual_label"].lower(), f"Expected cannabis concept, got {data['top_visual_label']}"
-    assert data["layer1_details"]["layer1_critical_flag"] is True
-    assert any("Prohibited visual content" in reason for reason in data["risk_reasons"]), (
+    assert data["content_decision"] == DECISION_BLOCK
+    assert any("photo appears to show illegal drugs" in reason for reason in data["risk_reasons"]), (
         f"Expected visual contraband reason in {data['risk_reasons']}"
     )
 
@@ -424,11 +402,9 @@ def test_scenario_3_live_online_learning_feedback_loop(client: TestClient) -> No
         "comment": "Escrow buyer reported fraud / account compromised",
     }
 
-    last_feedback_res = None
     for _ in range(5):
         feedback_res = client.post("/api/v1/feedback", json=feedback_payload)
         assert feedback_res.status_code == 200
-        last_feedback_res = feedback_res.json()
 
     # Step 3: Verify subsequent evaluation produces a strictly higher risk score
     follow_up_payload = {
@@ -481,7 +457,7 @@ def test_multipart_file_upload_listing(client: TestClient) -> None:
     assert response.status_code == 200
     res_data = response.json()
     assert res_data["listing_id"] == "LIST-UPLOAD-4401"
-    assert res_data["decision"] in (DECISION_ALLOW, DECISION_HOLD)
+    assert res_data["decision"] in (DECISION_ALLOW, DECISION_REVIEW)
 
 
 def test_validation_errors(client: TestClient) -> None:
@@ -579,7 +555,7 @@ def test_legitimate_mwenge_charger_and_unga_wa_sembe_allow(
     flour_data = res_flour.json()
     assert flour_data["category"] == "groceries"
     assert flour_data["layer1_details"]["swahili_slang_risk_score"] == 0.0
-    assert flour_data["decision"] == DECISION_ALLOW
+    assert flour_data["decision"] == DECISION_ALLOW, flour_data["risk_reasons"]
     assert flour_data["fraud_probability"] < 0.35, f"Flour risk was {flour_data['fraud_probability']}"
 
 
@@ -607,7 +583,7 @@ def test_rule_b_expensive_night_item_not_blocked(
     response = client.post("/api/v1/moderate-listing", json=expensive_phone_payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["decision"] in (DECISION_ALLOW, DECISION_HOLD)
+    assert data["decision"] in (DECISION_ALLOW, DECISION_REVIEW)
     assert data["decision"] != DECISION_BLOCK
 
 
@@ -665,8 +641,8 @@ def test_suit_image_uploaded_for_gauni_listing_triggers_mismatch(
     data = response.json()
     assert data["visual_comparison_status"] == "MISMATCH"
     assert data["layer1_details"]["image_text_mismatch_score"] >= 0.75
-    assert data["decision"] in (DECISION_HOLD, DECISION_BLOCK)
-    assert any("Visual-Text Mismatch" in r for r in data["risk_reasons"])
+    assert data["decision"] in (DECISION_REVIEW, DECISION_BLOCK)
+    assert any("does not match the title" in r for r in data["risk_reasons"])
 
 
 def test_screenshot_uploaded_triggers_non_product_mismatch(
@@ -695,8 +671,8 @@ def test_screenshot_uploaded_triggers_non_product_mismatch(
     data = response.json()
     assert data["visual_comparison_status"] == "MISMATCH"
     assert data["layer1_details"]["image_text_mismatch_score"] >= 0.75
-    assert data["decision"] in (DECISION_HOLD, DECISION_BLOCK)
-    assert any("Non-product image" in r or "Visual-Text Mismatch" in r for r in data["risk_reasons"])
+    assert data["decision"] in (DECISION_REVIEW, DECISION_BLOCK)
+    assert any("screenshot/document" in r or "does not match the title" in r for r in data["risk_reasons"])
 
 
 def test_matching_garment_returns_visual_match(

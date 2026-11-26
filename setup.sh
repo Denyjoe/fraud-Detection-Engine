@@ -5,6 +5,7 @@
 #   2. Creates an isolated virtual environment in .venv
 #   3. Installs dependencies (CPU-only PyTorch on Linux to save ~2 GB)
 #   4. Pre-trains the cold-start fraud model (models/fraud_model.joblib)
+#   5. Downloads the pretrained moderation models (about 2.5 GB, once)
 #
 # Usage:
 #   bash setup.sh            # normal setup
@@ -65,6 +66,9 @@ if [[ -f "$MODEL_FILE" && "$RETRAIN" -eq 0 ]]; then
 else
   "$VENV_PY" generate_synthetic_data.py || fail "Model pre-training failed. See the log output above."
 fi
+
+step "Downloading pretrained moderation models (about 2.5 GB, first run only)"
+"$VENV_PY" download_models.py || echo "Some models failed to download; those checks will be switched off. Re-run: .venv/bin/python download_models.py"
 
 printf '\n\033[32mSetup complete!\033[0m\n'
 echo "Start the server with:   bash run.sh"

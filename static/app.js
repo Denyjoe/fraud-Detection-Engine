@@ -440,6 +440,13 @@ async function runEvaluation() {
 // ---------------------------------------------------------------------------
 // Render Verdict & Dual-Layer Gauges
 // ---------------------------------------------------------------------------
+/** Escape text before inserting it into HTML (listing text and OCR output are untrusted). */
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[ch]);
+}
+
 function renderVerdict(data) {
   const { decision, fraud_probability, risk_reasons, layer1_details, category, price_to_category_median_ratio } = data;
   const pct = (fraud_probability * 100).toFixed(1);
@@ -452,11 +459,16 @@ function renderVerdict(data) {
     el.verdictBadge.className = 'inline-block px-3 py-1 rounded text-sm font-bold tracking-wide font-mono bg-emerald-50 text-emerald-700 border border-emerald-200';
     el.verdictSummary.textContent = 'Standard transaction pattern. Funds cleared for escrow lock.';
     el.fraudProbText.className = 'text-2xl font-bold font-mono text-emerald-700';
-  } else if (decision === 'HOLD_FOR_REVIEW') {
-    el.verdictBadge.textContent = 'HOLD FOR REVIEW';
+  } else if (decision === 'REVIEW') {
+    el.verdictBadge.textContent = 'REVIEW';
     el.verdictBadge.className = 'inline-block px-3 py-1 rounded text-sm font-bold tracking-wide font-mono bg-amber-50 text-amber-700 border border-amber-200';
     el.verdictSummary.textContent = 'Elevated transaction anomaly detected. Rider dispatch paused pending OTP or manual audit.';
     el.fraudProbText.className = 'text-2xl font-bold font-mono text-amber-700';
+  } else if (decision === 'ESCALATE') {
+    el.verdictBadge.textContent = 'ESCALATE';
+    el.verdictBadge.className = 'inline-block px-3 py-1 rounded text-sm font-bold tracking-wide font-mono bg-purple-50 text-purple-800 border border-purple-300';
+    el.verdictSummary.textContent = 'Child-safety signal: listing hidden and sent for URGENT human review.';
+    el.fraudProbText.className = 'text-2xl font-bold font-mono text-purple-800';
   } else {
     el.verdictBadge.textContent = 'BLOCK';
     el.verdictBadge.className = 'inline-block px-3 py-1 rounded text-sm font-bold tracking-wide font-mono bg-rose-50 text-rose-700 border border-rose-200';
@@ -467,7 +479,8 @@ function renderVerdict(data) {
   // Risk Reasons
   if (risk_reasons && risk_reasons.length > 0) {
     el.riskReasonsContainer.classList.remove('hidden');
-    el.riskReasonsList.innerHTML = risk_reasons.map(r => `<li>${r}</li>`).join('');
+    const sellerMsg = data.seller_message_sw ? [`Ujumbe kwa muuzaji: ${data.seller_message_sw}`] : [];
+    el.riskReasonsList.innerHTML = risk_reasons.concat(sellerMsg).map(r => `<li>${escapeHtml(r)}</li>`).join('');
   } else {
     el.riskReasonsContainer.classList.add('hidden');
     el.riskReasonsList.innerHTML = '';
@@ -492,7 +505,7 @@ function renderVerdict(data) {
   const terms = layer1_details.matched_slang_terms || [];
   if (terms.length > 0) {
     el.matchedSlangPills.innerHTML = terms.map(t =>
-      `<span class="px-2 py-0.5 rounded text-[11px] font-mono bg-rose-100 text-rose-800 border border-rose-200">#${t}</span>`
+      `<span class="px-2 py-0.5 rounded text-[11px] font-mono bg-rose-100 text-rose-800 border border-rose-200">#${escapeHtml(t)}</span>`
     ).join('');
   } else {
     el.matchedSlangPills.innerHTML = '<span class="text-[10px] text-slate-400 italic">No prohibited slang detected</span>';
@@ -635,23 +648,24 @@ async function loadAuditLedger() {
     el.auditTableBody.innerHTML = recent_logs.map(log => {
       let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
       if (log.decision === 'ALLOW') badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      if (log.decision === 'HOLD_FOR_REVIEW') badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+      if (log.decision === 'REVIEW') badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
       if (log.decision === 'BLOCK') badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+      if (log.decision === 'ESCALATE') badgeClass = 'bg-purple-50 text-purple-800 border-purple-300';
 
       const probFormatted = (log.fraud_probability * 100).toFixed(1) + '%';
       const formattedDate = log.created_at ? log.created_at.replace('T', ' ').slice(0, 19) : '--';
 
       return `
         <tr class="hover:bg-slate-50/80 transition">
-          <td class="py-2.5 px-4 font-mono text-[11px] font-medium text-slate-600">${log.event_type}</td>
-          <td class="py-2.5 px-4 font-mono text-[11px] text-slate-900 font-semibold">${log.reference_id}</td>
-          <td class="py-2.5 px-4 font-mono text-[11px] text-slate-600">${log.seller_id}</td>
-          <td class="py-2.5 px-4 text-slate-800 max-w-[240px] truncate" title="${log.detail}">${log.detail}</td>
+          <td class="py-2.5 px-4 font-mono text-[11px] font-medium text-slate-600">${escapeHtml(log.event_type)}</td>
+          <td class="py-2.5 px-4 font-mono text-[11px] text-slate-900 font-semibold">${escapeHtml(log.reference_id)}</td>
+          <td class="py-2.5 px-4 font-mono text-[11px] text-slate-600">${escapeHtml(log.seller_id)}</td>
+          <td class="py-2.5 px-4 text-slate-800 max-w-[240px] truncate" title="${escapeHtml(log.detail)}">${escapeHtml(log.detail)}</td>
           <td class="py-2.5 px-4 font-mono text-right text-slate-900">${formatTzs(log.price_tzs)}</td>
           <td class="py-2.5 px-4 font-mono text-right font-semibold text-slate-800">${probFormatted}</td>
           <td class="py-2.5 px-4 text-center">
             <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${badgeClass}">
-              ${log.decision}
+              ${escapeHtml(log.decision)}
             </span>
           </td>
           <td class="py-2.5 px-4 font-mono text-[11px] text-right text-slate-400">${formattedDate}</td>

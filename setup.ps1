@@ -7,6 +7,7 @@
     2. Creates an isolated virtual environment in .venv
     3. Installs all dependencies from requirements.txt
     4. Pre-trains the cold-start fraud model (models/fraud_model.joblib)
+    5. Downloads the pretrained moderation models (about 2.5 GB, once)
 
 .PARAMETER Retrain
     Force re-training of the fraud model even if one already exists.
@@ -98,6 +99,10 @@ if ((Test-Path $ModelFile) -and -not $Retrain) {
     & $VenvPython generate_synthetic_data.py
     if ($LASTEXITCODE -ne 0) { Fail "Model pre-training failed. See the log output above." }
 }
+
+Write-Step "Downloading pretrained moderation models (about 2.5 GB, first run only)"
+& $VenvPython download_models.py
+if ($LASTEXITCODE -ne 0) { Write-Host "Some models failed to download; those checks will be switched off. Re-run: .venv\Scripts\python download_models.py" -ForegroundColor Yellow }
 
 Write-Host ""
 Write-Host "Setup complete!" -ForegroundColor Green

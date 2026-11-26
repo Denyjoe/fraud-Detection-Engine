@@ -28,3 +28,6 @@ models/*.tmp
 .idea/
 .DS_Store
 Thumbs.db
+
+# --- Training feature cache (regenerated) ---
+data/feature_cache.json

@@ -28,10 +28,10 @@ from config.settings import (
     CATEGORY_MEDIANS_TZS,
     DECISION_ALLOW,
     DECISION_BLOCK,
-    DECISION_HOLD,
+    DECISION_REVIEW,
     DEFAULT_CATEGORY,
     DEFAULT_MODEL_FILE,
-    HOLD_UPPER_BOUND,
+    REVIEW_UPPER_BOUND,
     LOGISTIC_L2_PENALTY,
     SUPPORTED_CATEGORIES,
 )
@@ -208,19 +208,19 @@ class OnlineFraudModelLayer2:
         """Map a fraud probability score to an actionable platform decision.
 
         ALLOW: < 0.40 (40%)
-        HOLD_FOR_REVIEW: 0.40 - 0.75 (40% - 75%)
+        REVIEW: 0.40 - 0.75 (40% - 75%)
         BLOCK: > 0.75 (75%)
 
         Parameters:
             probability (float): Fraud probability score.
 
         Returns:
-            str: One of 'ALLOW', 'HOLD_FOR_REVIEW', or 'BLOCK'.
+            str: One of 'ALLOW', 'REVIEW', or 'BLOCK'.
         """
         if probability < ALLOW_UPPER_BOUND:
             return DECISION_ALLOW
-        elif probability <= HOLD_UPPER_BOUND:
-            return DECISION_HOLD
+        elif probability <= REVIEW_UPPER_BOUND:
+            return DECISION_REVIEW
         else:
             return DECISION_BLOCK
 

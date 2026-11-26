@@ -40,13 +40,17 @@ class ModerateListingResponse(BaseModel):
     seller_id: str
     category: str = Field(..., description="Resolved retail category")
     price_to_category_median_ratio: float = Field(..., description="Normalized price ratio against category median")
-    decision: str = Field(..., description="Actionable decision: ALLOW, HOLD_FOR_REVIEW, or BLOCK")
-    fraud_probability: float = Field(..., ge=0.0, le=1.0, description="Overall fraud probability (0.0 to 1.0)")
+    decision: str = Field(..., description="Final decision: ALLOW, REVIEW, BLOCK or ESCALATE")
+    fraud_probability: float = Field(..., ge=0.0, le=1.0, description="Overall risk probability (0.0 to 1.0)")
     risk_reasons: List[str] = Field(default_factory=list, description="Explanatory reasons if flagged")
+    content_decision: str = Field(..., description="Layer 1 content-only decision")
+    categories: List[str] = Field(default_factory=list, description="Violation categories found")
+    seller_message_sw: str = Field(..., description="Message to show the seller (Swahili)")
+    seller_message_en: str = Field(..., description="Message to show the seller (English)")
     seller_claimed_concept: Optional[str] = Field(default=None, description="Inferred/translated English visual concept")
     top_visual_label: Optional[str] = Field(default=None, description="Top detected visual concept from zero-shot CLIP")
     top_visual_probability: Optional[float] = Field(default=None, description="Probability of top visual label")
-    visual_comparison_status: Optional[str] = Field(default=None, description="Visual-text comparison status: MATCH, MISMATCH, CONTRABAND, NO_IMAGE")
+    visual_comparison_status: Optional[str] = Field(default=None, description="MATCH, MISMATCH, CONTRABAND, NON_PRODUCT, NOT_VERIFIED, NO_IMAGE or UNAVAILABLE")
     visual_comparison_detail: Optional[str] = Field(default=None, description="Detailed visual comparison rationale")
     visual_contraband_detected: bool = Field(default=False, description="Flag indicating contraband/weapons/NSFW in image")
     layer1_details: Dict[str, Any] = Field(..., description="Detailed Layer 1 vision & slang breakdown")
@@ -78,7 +82,7 @@ class TransactionRiskResponse(BaseModel):
     transaction_id: str
     category: str = Field(..., description="Retail category")
     price_to_category_median_ratio: float = Field(..., description="Price to category median ratio")
-    decision: str = Field(..., description="Decision: ALLOW, HOLD_FOR_REVIEW, or BLOCK")
+    decision: str = Field(..., description="Decision: ALLOW, REVIEW, or BLOCK")
     fraud_probability: float = Field(..., ge=0.0, le=1.0, description="Fraud probability (0.0 to 1.0)")
     features: Dict[str, Any]
     audit_log_id: int
@@ -125,7 +129,7 @@ class AuditLogItem(BaseModel):
     detail: str = Field(..., description="Title or event description")
     price_tzs: float = Field(..., description="Amount in TZS")
     fraud_probability: float = Field(..., description="Model calculated fraud probability")
-    decision: str = Field(..., description="ALLOW, HOLD_FOR_REVIEW, or BLOCK")
+    decision: str = Field(..., description="ALLOW, REVIEW, BLOCK or ESCALATE")
     created_at: str = Field(..., description="Timestamp of the event")
 
 
@@ -137,3 +141,30 @@ class AuditStatsResponse(BaseModel):
     model_type: str = Field(default="River Incremental Pipeline (StandardScaler + LogisticRegression)")
     active_currency: str = Field(default="TZS")
 
+
+
+class ReasonItem(BaseModel):
+    """One piece of evidence behind a moderation decision."""
+
+    source: str = Field(..., description="text, ocr, audio, text_ml, image, video, hash, csam, child_safety, ...")
+    category: str = Field(..., description="e.g. DRUGS, WEAPONS, SEXUAL, OFF_PLATFORM_CONTACT, IMAGE_TEXT_MISMATCH")
+    level: str = Field(..., description="WEAK, REVIEW, BLOCK or ESCALATE")
+    score: float
+    detail: str
+    file: Optional[str] = Field(default=None, description="Uploaded file the evidence came from")
+
+
+class ModerateResponse(BaseModel):
+    """Response of POST /moderate (content moderation of one listing)."""
+
+    decision: str = Field(..., description="ALLOW, REVIEW, BLOCK or ESCALATE (urgent human review)")
+    score: float = Field(..., ge=0.0, le=1.0, description="Violation risk score")
+    categories: List[str] = Field(default_factory=list, description="Violation categories found")
+    reasons: List[ReasonItem] = Field(default_factory=list)
+    seller_message_sw: str = Field(..., description="Message for the seller in Swahili")
+    seller_message_en: str = Field(..., description="Message for the seller in English")
+    category: str = Field(..., description="Inferred retail category")
+    checks: Dict[str, str] = Field(default_factory=dict, description="Status of each model/check")
+    processing_ms: int
+    audit_log_id: int
+    details: Dict[str, Any] = Field(default_factory=dict, description="Per-check details (scores, media, OCR text)")
